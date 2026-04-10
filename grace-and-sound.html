@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vimukthi Music</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg2: #f5f5f0;
+      --bg3: #efefea;
+      --text: #1a1a18;
+      --text2: #6b6b66;
+      --text3: #9e9e98;
+      --border: rgba(0,0,0,0.12);
+      --border2: rgba(0,0,0,0.22);
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --green: #1D9E75;
+      --green-dark: #0F6E56;
+      --green-light: #E1F5EE;
+      --green-mid: #9FE1CB;
+      --green-text: #085041;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1e1e1c;
+        --bg2: #2a2a28;
+        --bg3: #323230;
+        --text: #f0f0ec;
+        --text2: #a0a09a;
+        --text3: #6e6e68;
+        --border: rgba(255,255,255,0.1);
+        --border2: rgba(255,255,255,0.2);
+        --green-light: #0a3d2a;
+        --green-mid: #0f5c3e;
+        --green-text: #9FE1CB;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg3);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .app {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      padding: 2.5rem 0 1.75rem;
+      border-bottom: 0.5px solid var(--border);
+      margin-bottom: 1.75rem;
+    }
+    .cross-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+    .header p {
+      font-size: 14px;
+      color: var(--text2);
+      margin-top: 4px;
+    }
+
+    /* ── Config banner ── */
+    .config-banner {
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      margin-bottom: 1.5rem;
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+    .config-banner code {
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 12px;
+      background: var(--bg);
+      padding: 1px 5px;
+      border-radius: 4px;
+      border: 0.5px solid var(--border);
+      color: var(--text);
+    }
+
+    /* ── Player card ── */
+    .player-card {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .now-playing-label {
+      font-size: 11px;
+      color: var(--text3);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .track-art {
+      width: 100%;
+      aspect-ratio: 1;
+      max-width: 210px;
+      margin: 0 auto 1.25rem;
+      border-radius: var(--radius-lg);
+      background: var(--green-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .track-art img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    .track-art svg { opacity: 0.45; }
+
+    .track-info { text-align: center; margin-bottom: 1.25rem; }
+    .track-title { font-size: 19px; font-weight: 600; color: var(--text); }
+    .track-sub { font-size: 14px; color: var(--text2); margin-top: 3px; }
+    .track-album { font-size: 12px; color: var(--text3); margin-top: 2px; }
+    .status-pill {
+      display: inline-block;
+      font-size: 11px;
+      padding: 3px 12px;
+      border-radius: 20px;
+      margin-top: 10px;
+      background: var(--green-light);
+      color: var(--green-text);
+      font-weight: 500;
+    }
+
+    /* ── Progress ── */
+    .progress-wrap { margin: 1.25rem 0 1rem; }
+    .progress-bar-bg {
+      width: 100%;
+      height: 4px;
+      background: var(--bg2);
+      border-radius: 2px;
+      cursor: pointer;
+      position: relative;
+    }
+    .progress-bar-fill {
+      height: 4px;
+      border-radius: 2px;
+      background: var(--green);
+      width: 0%;
+      transition: width 0.25s linear;
+    }
+    .progress-times {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 6px;
+    }
+
+    /* ── Controls ── */
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      margin-bottom: 1.25rem;
+    }
+    .ctrl-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      border-radius: 50%;
+      transition: background 0.15s, color 0.15s;
+    }
+    .ctrl-btn:hover { background: var(--bg2); color: var(--text); }
+    .play-btn {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: var(--green);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .play-btn:hover { background: var(--green-dark); }
+    .play-btn:active { transform: scale(0.96); }
+
+    /* ── Volume ── */
+    .volume-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 2px;
+    }
+    .volume-row svg { color: var(--text3); flex-shrink: 0; }
+    .volume-row input[type=range] {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 4px;
+      background: var(--bg2);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    .volume-row input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--green);
+      cursor: pointer;
+    }
+
+    /* ── Song list ── */
+    .section-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text2);
+      margin-bottom: 10px;
+      padding: 0 2px;
+    }
+    .song-list { display: flex; flex-direction: column; gap: 2px; }
+    .song-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      border: 0.5px solid transparent;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .song-row:hover { background: var(--bg2); border-color: var(--border); }
+    .song-row.active { background: var(--green-light); border-color: var(--green-mid); }
+    .song-num {
+      font-size: 12px;
+      color: var(--text3);
+      width: 20px;
+      text-align: center;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .song-thumb {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-md);
+      background: var(--green-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .song-thumb img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .song-meta { flex: 1; min-width: 0; }
+    .song-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .song-sub { font-size: 12px; color: var(--text2); margin-top: 1px; }
+    .song-dur { font-size: 12px; color: var(--text3); flex-shrink: 0; }
+    .song-row.active .song-name { color: var(--green-text); }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      margin-top: 2.5rem;
+      font-size: 12px;
+      color: var(--text3);
+    }
+
+    @media (max-width: 480px) {
+      .track-art { max-width: 160px; }
+      .controls { gap: 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="cross-icon">
+      <svg width="30" height="30" viewBox="0 0 28 28" fill="none">
+        <rect x="11" y="2" width="6" height="24" rx="2" fill="#1D9E75"/>
+        <rect x="2" y="9" width="24" height="6" rx="2" fill="#1D9E75"/>
+      </svg>
+    </div>
+    <h1>Grace &amp; Sound</h1>
+    <p>Worship music by <span id="artist-name-header">Your Brother's Name</span></p>
+  </div>
+
+  <div class="config-banner">
+    <strong>Setup:</strong> Open this file in a text editor and update the <code>ARTIST</code> name and <code>songs</code> array with your real S3 URLs. Each song needs a <code>url</code> pointing to your <code>.mp3</code> file. Optionally add a <code>cover</code> image URL per song.
+  </div>
+
+  <div class="player-card">
+    <div class="now-playing-label">Now playing</div>
+
+    <div class="track-art" id="track-art">
+      <img id="cover-img" alt="Album art" />
+      <svg id="cover-icon" width="70" height="70" viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="28" stroke="#1D9E75" stroke-width="2"/>
+        <circle cx="32" cy="32" r="8" fill="#1D9E75"/>
+        <path d="M24 14 Q28 32 24 50" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M40 14 Q36 32 40 50" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+
+    <div class="track-info">
+      <div class="track-title" id="np-title">—</div>
+      <div class="track-sub" id="np-artist">Select a song below to begin</div>
+      <div class="track-album" id="np-album"></div>
+      <span class="status-pill" id="status-pill">Stopped</span>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-bar-bg" id="prog-bg">
+        <div class="progress-bar-fill" id="prog-fill"></div>
+      </div>
+      <div class="progress-times">
+        <span id="elapsed">0:00</span>
+        <span id="total">0:00</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="ctrl-btn" id="prev-btn" title="Previous">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/>
+        </svg>
+      </button>
+      <button class="play-btn" id="play-btn" title="Play / Pause">
+        <svg id="play-icon" width="26" height="26" viewBox="0 0 24 24" fill="white">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+      </button>
+      <button class="ctrl-btn" id="next-btn" title="Next">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6 18l8.5-6L6 6v12zm10-12v12h2V6h-2z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="volume-row">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+      </svg>
+      <input type="range" id="volume" min="0" max="1" step="0.01" value="1" />
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="section-label">Songs</div>
+  <div class="song-list" id="song-list"></div>
+
+  <div class="footer">Grace &amp; Sound &mdash; built with love for worship</div>
+</div>
+
+<script>
+  /* ─────────────────────────────────────────
+     CONFIGURATION — edit these two things:
+     1. ARTIST  → your brother's name
+     2. songs[] → replace url/cover with your
+                  real S3 file URLs
+  ───────────────────────────────────────── */
+
+  const ARTIST = "Jeevan Thathapudi";
+
+  const songs = [
+    {
+      title: "Track 1",
+      album: "Freedom",
+      year: 2024,
+      url: "https://ap-south-1.console.aws.amazon.com/s3/object/vimukthimusic?region=ap-south-1&prefix=Freedom/01+Track+1.mp3",
+      cover: ""   // e.g. "https://your-bucket.s3.amazonaws.com/music/hymns-of-the-heart/cover.jpg"
+    },
+    {
+      title: "Amazing Grace",
+      album: "Freedom",
+      year: 2024,
+      url: "https://your-bucket.s3.amazonaws.com/music/hymns-of-the-heart/02-amazing-grace.mp3",
+      cover: ""
+    },
+    {
+      title: "Blessed Assurance",
+      album: "Freedom",
+      year: 2024,
+      url: "https://your-bucket.s3.amazonaws.com/music/hymns-of-the-heart/03-blessed-assurance.mp3",
+      cover: ""
+    },
+    {
+      title: "It Is Well",
+      album: "Freedom",
+      year: 2023,
+      url: "https://your-bucket.s3.amazonaws.com/music/live-worship/01-it-is-well.mp3",
+      cover: ""
+    },
+    {
+      title: "Great Is Thy Faithfulness",
+      album: "Freedom",
+      year: 2023,
+      url: "https://your-bucket.s3.amazonaws.com/music/live-worship/02-great-is-thy-faithfulness.mp3",
+      cover: ""
+    },
+    {
+      title: "In Christ Alone",
+      album: "Freedom",
+      year: 2023,
+      url: "https://your-bucket.s3.amazonaws.com/music/live-worship/03-in-christ-alone.mp3",
+      cover: ""
+    },
+    {
+      title: "10,000 Reasons",
+      album: "Freedom",
+      year: 2022,
+      url: "https://your-bucket.s3.amazonaws.com/music/original/01-10000-reasons.mp3",
+      cover: ""
+    },
+    {
+      title: "What a Beautiful Name",
+      album: "Freedom",
+      year: 2022,
+      url: "https://your-bucket.s3.amazonaws.com/music/original/02-what-a-beautiful-name.mp3",
+      cover: ""
+    },
+  ];
+
+  /* ─── App logic (no need to edit below) ─── */
+
+  document.getElementById('artist-name-header').textContent = ARTIST;
+
+  const audio = new Audio();
+  audio.preload = "metadata";
+  let current = -1;
+  let playing = false;
+
+  const npTitle   = document.getElementById('np-title');
+  const npArtist  = document.getElementById('np-artist');
+  const npAlbum   = document.getElementById('np-album');
+  const progFill  = document.getElementById('prog-fill');
+  const elapsedEl = document.getElementById('elapsed');
+  const totalEl   = document.getElementById('total');
+  const playBtn   = document.getElementById('play-btn');
+  const playIcon  = document.getElementById('play-icon');
+  const statusPill= document.getElementById('status-pill');
+  const coverImg  = document.getElementById('cover-img');
+  const coverIcon = document.getElementById('cover-icon');
+  const songList  = document.getElementById('song-list');
+
+  function fmt(sec) {
+    if (!sec || isNaN(sec)) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return m + ':' + String(s).padStart(2, '0');
+  }
+
+  function setStatus(txt) { statusPill.textContent = txt; }
+
+  function setPlayIcon(isPlaying) {
+    playIcon.innerHTML = isPlaying
+      ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'
+      : '<path d="M8 5v14l11-7z"/>';
+  }
+
+  function loadSong(idx, autoplay) {
+    current = idx;
+    const s = songs[idx];
+    audio.src = s.url;
+    audio.load();
+
+    npTitle.textContent  = s.title;
+    npArtist.textContent = ARTIST;
+    npAlbum.textContent  = s.album + ' · ' + s.year;
+    progFill.style.width = '0%';
+    elapsedEl.textContent = '0:00';
+    totalEl.textContent   = '0:00';
+    setStatus('Loading…');
+    setPlayIcon(false);
+
+    if (s.cover) {
+      coverImg.src = s.cover;
+      coverImg.style.display = 'block';
+      coverIcon.style.display = 'none';
+    } else {
+      coverImg.style.display = 'none';
+      coverIcon.style.display = 'block';
+    }
+
+    if (autoplay) {
+      audio.play().catch(() => setStatus('Error — check S3 URL & CORS'));
+    }
+
+    renderList();
+  }
+
+  audio.addEventListener('playing', () => {
+    playing = true;
+    setStatus('Playing');
+    setPlayIcon(true);
+    renderList();
+  });
+  audio.addEventListener('pause', () => {
+    playing = false;
+    setStatus('Paused');
+    setPlayIcon(false);
+    renderList();
+  });
+  audio.addEventListener('waiting', () => setStatus('Buffering…'));
+  audio.addEventListener('error',   () => setStatus('Error — check S3 URL & CORS'));
+  audio.addEventListener('ended',   () => {
+    const next = (current + 1) % songs.length;
+    loadSong(next, true);
+  });
+  audio.addEventListener('timeupdate', () => {
+    if (!audio.duration) return;
+    const pct = audio.currentTime / audio.duration;
+    progFill.style.width   = (pct * 100).toFixed(2) + '%';
+    elapsedEl.textContent  = fmt(audio.currentTime);
+    totalEl.textContent    = fmt(audio.duration);
+  });
+
+  document.getElementById('prog-bg').addEventListener('click', (e) => {
+    if (current < 0 || !audio.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    audio.currentTime = pct * audio.duration;
+  });
+
+  playBtn.addEventListener('click', () => {
+    if (current < 0) { loadSong(0, true); return; }
+    audio.paused ? audio.play() : audio.pause();
+  });
+
+  document.getElementById('next-btn').addEventListener('click', () => {
+    loadSong((current + 1) % songs.length, true);
+  });
+
+  document.getElementById('prev-btn').addEventListener('click', () => {
+    if (audio.currentTime > 3) { audio.currentTime = 0; return; }
+    loadSong((current - 1 + songs.length) % songs.length, true);
+  });
+
+  document.getElementById('volume').addEventListener('input', (e) => {
+    audio.volume = parseFloat(e.target.value);
+  });
+
+  function noteIcon(fill) {
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="${fill}"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>`;
+  }
+
+  function playingIcon() {
+    const p = playing ? 'M6 19h4V5H6v14zm8-14v14h4V5h-4z' : 'M8 5v14l11-7z';
+    return `<svg width="14" height="14" viewBox="0 0 24 24" fill="#1D9E75"><path d="${p}"/></svg>`;
+  }
+
+  function renderList() {
+    songList.innerHTML = '';
+    songs.forEach((s, i) => {
+      const isActive = i === current;
+      const row = document.createElement('div');
+      row.className = 'song-row' + (isActive ? ' active' : '');
+
+      const numHtml   = isActive ? playingIcon() : (i + 1);
+      const thumbHtml = s.cover
+        ? `<img src="${s.cover}" alt="" style="width:100%;height:100%;object-fit:cover;" />`
+        : noteIcon('#1D9E75');
+
+      row.innerHTML = `
+        <span class="song-num">${numHtml}</span>
+        <div class="song-thumb">${thumbHtml}</div>
+        <div class="song-meta">
+          <div class="song-name">${s.title}</div>
+          <div class="song-sub">${s.album} · ${s.year}</div>
+        </div>
+        <span class="song-dur">—</span>
+      `;
+      row.addEventListener('click', () => loadSong(i, true));
+      songList.appendChild(row);
+    });
+  }
+
+  renderList();
+</script>
+</body>
+</html>
